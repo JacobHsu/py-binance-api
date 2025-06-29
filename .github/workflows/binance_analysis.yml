@@ -26,7 +26,9 @@ jobs:
         pip install pandas requests pytz
 
     - name: Run Multi-Crypto Data Collection
-      run: python get_binance_data.py
+      run: |
+        mkdir -p data
+        python get_binance_data.py
 
     - name: Run Multi-Crypto Technical Analysis
       run: python analyze_binance_data.py
