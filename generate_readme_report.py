@@ -84,12 +84,13 @@ def generate_readme_content(all_analysis_data):
 
 ## 📈 市場總覽
 
-| 幣種 | 價格 | 24H變化 | 趨勢 | 信號 |
-|------|------|---------|------|------|"""
+| 幣種 | 價格 | 1H變化 | 24H變化 | 趨勢 | 信號 |
+|------|------|--------|---------|------|------|"""
 
     # 添加每個幣種的市場概況
     for symbol, analysis in all_analysis_data.items():
         price = analysis['current_price']
+        one_hour_change = analysis.get('1h_change_percent', 0)
         change = analysis['24hr_change_percent']
         trend = analysis['current_trend']
         emoji = get_symbol_emoji(symbol)
@@ -99,7 +100,7 @@ def generate_readme_content(all_analysis_data):
         signal = "🟢買入" if change > 1 and "多頭" in trend else "🔴賣出" if change < -1 and "空頭" in trend else "⚪觀望"
 
         readme_content += f"""
-| {emoji} **{name}** | {format_price(price, symbol)} | {change:+.2f}% | {trend_short} | {signal} |"""
+| {emoji} **{name}** | {format_price(price, symbol)} | {one_hour_change:+.2f}% | {change:+.2f}% | {trend_short} | {signal} |"""
 
     readme_content += f"""
 
@@ -114,12 +115,13 @@ def generate_readme_content(all_analysis_data):
         emoji = get_symbol_emoji(symbol)
         name = get_symbol_name(symbol)
         price = analysis['current_price']
+        one_hour_change = analysis.get('1h_change_percent', 0)
         change = analysis['24hr_change_percent']
         indicators = analysis['technical_indicators_summary']
 
         readme_content += f"""### {emoji} {name} ({symbol})
 
-**價格**: {format_price(price, symbol)} | **24H**: {change:+.2f}% | **趨勢**: {analysis['current_trend']}
+**價格**: {format_price(price, symbol)} | **1H**: {one_hour_change:+.2f}% | **24H**: {change:+.2f}% | **趨勢**: {analysis['current_trend']}
 
 **📊 均線系統**: {indicators['均線系統']}
 
