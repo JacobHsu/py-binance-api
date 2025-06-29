@@ -1,0 +1,47 @@
+name: Virtual Currency 1h Analysis & README Generator
+
+on:
+  schedule:
+    # 每小時執行一次 (UTC時間)
+    - cron: '0 * * * *'
+  workflow_dispatch: # 手動觸發
+
+jobs:
+  analyze-and-update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install pandas requests pytz
+
+    - name: Run Multi-Crypto Data Collection
+      run: python get_binance_data.py
+
+    - name: Run Multi-Crypto Technical Analysis
+      run: python analyze_binance_data.py
+
+    - name: Generate Virtual Currency 1h README Report
+      run: python generate_readme_report.py
+
+    - name: Commit and Push Updated README
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "Virtual Currency Analysis Bot"
+        git add README.md
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "🚀 Update virtual currency 1h report - $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          git push
+        fi
