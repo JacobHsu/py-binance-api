@@ -67,6 +67,7 @@ def get_symbol_name(symbol):
     }
     return name_map.get(symbol, symbol)
 
+
 def generate_readme_content(all_analysis_data):
     """生成多幣種 README.md 內容"""
 
@@ -84,13 +85,14 @@ def generate_readme_content(all_analysis_data):
 
 ## 📈 市場總覽
 
-| 幣種 | 價格 | 1H變化 | 24H變化 | 趨勢 | 信號 |
-|------|------|--------|---------|------|------|"""
+| 幣種 | 價格 | 1H變化 | 4H變化 | 24H變化 | 趨勢 | 信號 |
+|------|------|--------|--------|---------|------|------|"""
 
     # 添加每個幣種的市場概況
     for symbol, analysis in all_analysis_data.items():
         price = analysis['current_price']
         one_hour_change = analysis.get('1h_change_percent', 0)
+        four_hour_change = analysis.get('4h_change_percent', 0) # 获取 4H 变化
         change = analysis['24hr_change_percent']
         trend = analysis['current_trend']
         emoji = get_symbol_emoji(symbol)
@@ -100,9 +102,11 @@ def generate_readme_content(all_analysis_data):
         signal = "🟢買入" if change > 1 and "多頭" in trend else "🔴賣出" if change < -1 and "空頭" in trend else "⚪觀望"
 
         readme_content += f"""
-| {emoji} **{name}** | {format_price(price, symbol)} | {one_hour_change:+.2f}% | {change:+.2f}% | {trend_short} | {signal} |"""
+| {emoji} **{name}** | {format_price(price, symbol)} | {one_hour_change:+.2f}% | {four_hour_change:+.2f}% | {change:+.2f}% | {trend_short} | {signal} |"""
 
     readme_content += f"""
+
+**最後更新時間**: {taipei_time.strftime('%Y-%m-%d %H:%M:%S')} 台北時間
 
 ---
 
@@ -120,7 +124,10 @@ def generate_readme_content(all_analysis_data):
         indicators = analysis['technical_indicators_summary']
 
         readme_content += f"""### {emoji} {name} ({symbol})
+"""
+        # 移除图表引用
 
+        readme_content += f"""
 **價格**: {format_price(price, symbol)} | **1H**: {one_hour_change:+.2f}% | **24H**: {change:+.2f}% | **趨勢**: {analysis['current_trend']}
 
 **📊 均線系統**: {indicators['均線系統']}
@@ -130,6 +137,8 @@ def generate_readme_content(all_analysis_data):
 **🎯 RSI指標**: {indicators['RSI']}
 
 **🔄 KDJ指標**: {indicators['KDJ']}
+
+**🎢 BOLL指標**: {indicators.get('BOLL', 'N/A')}
 
 **💡 交易建議**: {analysis['analysis_result']['方向']}
 
@@ -216,14 +225,29 @@ def generate_readme_content(all_analysis_data):
         if not analysis or 'technical_indicators_summary' not in analysis:
             return "N/A"
         indicator = analysis['technical_indicators_summary'].get(indicator_key, "")
-        if "金叉" in indicator or "多頭" in indicator or "偏強" in indicator:
+
+        if indicator_key == 'BOLL':
+            if "接近下軌" in indicator or "位於中軌下方" in indicator:
+                return "🔴" # 价格偏弱/低位
+            elif "接近上軌" in indicator or "位於中軌上方" in indicator:
+                return "🟢" # 价格偏强/高位
+            else:
+                return "⚪" # 中性/震荡
+        elif indicator_key == 'RSI':
+            if "超買區" in indicator or "中性偏強" in indicator:
+                return "🟢" # 偏强
+            elif "超賣區" in indicator or "中性偏弱" in indicator:
+                return "🔴" # 偏弱
+            else:
+                return "⚪" # 中性
+        elif "金叉" in indicator or "多頭" in indicator or "偏強" in indicator:
             return "🟢"
         elif "死叉" in indicator or "空頭" in indicator or "偏弱" in indicator:
             return "🔴"
         else:
             return "⚪"
 
-    indicators_list = ['均線系統', 'MACD', 'RSI', 'KDJ']
+    indicators_list = ['均線系統', 'MACD', 'RSI', 'KDJ', 'BOLL'] # 新增 BOLL 到列表
     for indicator in indicators_list:
         btc_status = get_indicator_status(btc_data, indicator)
         eth_status = get_indicator_status(eth_data, indicator)

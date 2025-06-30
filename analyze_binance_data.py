@@ -58,6 +58,14 @@ def analyze_indicators(ticker_data, klines_df):
     else:
         analysis_results["1h_change_percent"] = 0
 
+    # Calculate 4-hour change
+    if len(klines_df) >= 5: # Need at least 5 data points for 4-hour change (current + 4 previous)
+        four_hour_ago_close = klines_df["close"].iloc[-5]
+        four_hour_change_percent = ((current_price - four_hour_ago_close) / four_hour_ago_close) * 100
+        analysis_results["4h_change_percent"] = four_hour_change_percent
+    else:
+        analysis_results["4h_change_percent"] = 0
+
     # Support and Resistance (simplified, can be improved with more advanced methods)
     # Using recent low/high as a simple proxy
     analysis_results["major_support"] = klines_df["low"].min()
