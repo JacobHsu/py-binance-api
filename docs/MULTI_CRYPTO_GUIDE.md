@@ -2,11 +2,13 @@
 
 ## 📊 系統概述
 
-這是一個升級版的 Binance 自動投資分析系統，現在支援 **4 大主流幣種**：
+這是一個升級版的 Binance 自動投資分析系統，現在支援 **6 大主流幣種**：
 - ₿ **Bitcoin (BTC)**
 - Ξ **Ethereum (ETH)** 
 - ◎ **Solana (SOL)**
-- 🐕 **Dogecoin (DOGE)**
+- Ð **Dogecoin (DOGE)**
+- ✕ **Ripple (XRP)**
+- ₳ **Cardano (ADA)**
 
 ## ✨ 新功能特色
 
@@ -45,7 +47,7 @@ Binance_py/
 python test_multi_crypto.py
 
 # 或分步執行
-python get_binance_data.py      # 獲取 BTC, ETH, SOL, DOGE 數據
+python get_binance_data.py      # 獲取 BTC, ETH, SOL, DOGE, XRP, ADA 數據
 python analyze_binance_data.py  # 分析所有幣種
 python generate_readme_report.py # 生成一頁式報告
 ```
@@ -124,7 +126,7 @@ risk_score = 24h_change + trend_score
 編輯以下文件中的 `symbols` 列表：
 ```python
 # get_binance_data.py 和 analyze_binance_data.py
-symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "DOGEUSDT", "ADAUSDT"]
+symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "DOGEUSDT", "XRPUSDT", "ADAUSDT"]
 ```
 
 ### 修改執行頻率
@@ -172,7 +174,7 @@ schedule:
 ## 🎉 升級亮點
 
 ### 相比單幣種版本
-1. **多幣種支持**: 從 1 個增加到 4 個主流幣種
+1. **多幣種支持**: 從 1 個增加到 6 個主流幣種
 2. **一頁式報告**: 更簡潔易讀的格式
 3. **智能推薦**: 自動識別最佳機會和風險
 4. **對比分析**: 技術指標橫向對比
@@ -186,6 +188,6 @@ schedule:
 
 ---
 
-**🚀 現在您擁有了一個專業級的多幣種自動投資分析系統！**
+**🚀 專業級的多幣種自動投資分析系統！**
 
-*📊 實時監控 4 大主流幣種 | 🤖 智能分析推薦 | 📝 一頁式好讀報告*
+*📊 實時監控 6 大主流幣種 | 🤖 智能分析推薦 | 📝 一頁式好讀報告*

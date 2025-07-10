@@ -236,7 +236,7 @@ def analyze_multiple_symbols(symbols, interval="1h"):
 
 if __name__ == "__main__":
     # 支援的交易對
-    symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "DOGEUSDT"]
+    symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "DOGEUSDT", "XRPUSDT", "ADAUSDT"]
     interval = "1h"
 
     try:
