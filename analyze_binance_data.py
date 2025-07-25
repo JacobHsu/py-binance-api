@@ -22,6 +22,13 @@ def calculate_technical_indicators(df):
     df["BB_Lower"] = df["BB_Middle"] - (df["BB_StdDev"] * 2)
     df["Percent_B"] = (df["close"] - df["BB_Lower"]) / (df["BB_Upper"] - df["BB_Lower"])
 
+    # Keltner Channel (KC)
+    df["KC_Middle"] = df["close"].ewm(span=20, adjust=False).mean()  # EMA20 作為中軌
+    df["KC_ATR"] = ((df["high"] - df["low"]).rolling(window=14).mean())  # 簡化的ATR計算
+    df["KC_Upper"] = df["KC_Middle"] + (df["KC_ATR"] * 2)
+    df["KC_Lower"] = df["KC_Middle"] - (df["KC_ATR"] * 2)
+    df["KC_Position"] = (df["close"] - df["KC_Lower"]) / (df["KC_Upper"] - df["KC_Lower"])
+
     # RSI
     delta = df["close"].diff()
     gain = delta.where(delta > 0, 0)
@@ -86,6 +93,7 @@ def analyze_indicators(ticker_data, klines_df):
         "均線系統": "",
         "MACD": "",
         "BOLL": "",
+        "KC": "",
         "RSI": "",
         "KDJ": ""
     }
@@ -132,6 +140,21 @@ def analyze_indicators(ticker_data, klines_df):
     else:
         analysis_results["technical_indicators_summary"]["BOLL"] = \
             f"價格在布林帶中軌附近震盪。上軌={bb_upper:.2f}, 中軌={bb_middle:.2f}, 下軌={bb_lower:.2f}, %B={percent_b:.2%}。"
+
+    # KC Analysis
+    kc_upper = klines_df["KC_Upper"].iloc[-1]
+    kc_middle = klines_df["KC_Middle"].iloc[-1]
+    kc_lower = klines_df["KC_Lower"].iloc[-1]
+    kc_position = klines_df["KC_Position"].iloc[-1]
+    if close_price > kc_upper * 0.98: # Close to upper channel
+        analysis_results["technical_indicators_summary"]["KC"] = \
+            f"價格突破上軌（{kc_upper:.2f}），KC位置（{kc_position:.2%}）顯示強勢，中軌（{kc_middle:.2f}）成為動態支撐。"
+    elif close_price < kc_lower * 1.02: # Close to lower channel
+        analysis_results["technical_indicators_summary"]["KC"] = \
+            f"價格跌破下軌（{kc_lower:.2f}），KC位置（{kc_position:.2%}）顯示弱勢，中軌（{kc_middle:.2f}）成為動態阻力。"
+    else:
+        analysis_results["technical_indicators_summary"]["KC"] = \
+            f"價格在肯特納通道內運行。上軌={kc_upper:.2f}, 中軌={kc_middle:.2f}, 下軌={kc_lower:.2f}, 位置={kc_position:.2%}。"
 
     # RSI Analysis
     rsi14 = klines_df["RSI14"].iloc[-1]
