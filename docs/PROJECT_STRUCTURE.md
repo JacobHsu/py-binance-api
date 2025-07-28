@@ -32,6 +32,15 @@ Binance_py/
 │   ├── test_full_workflow.py      # 完整工作流程測試
 │   └── test_multi_crypto.py       # 多幣種系統測試
 │
+├── 📁 tg/                          # Telegram Bot 模組
+│   ├── telegram_bot.py            # 核心 Bot 功能
+│   ├── telegram_config.py         # 配置管理 (.env 支援)
+│   ├── run_telegram_signals.py    # 主執行腳本
+│   ├── test_telegram_integration.py # 測試腳本
+│   ├── .env.example               # 配置範例
+│   ├── README.md                  # 模組說明
+│   └── USAGE.md                   # 使用說明
+│
 ├── 📁 cloud_deployment/           # 雲端部署文件
 │   ├── 📁 api/                    # Vercel API 目錄
 │   │   └── analyze.py             # Vercel 分析 API
@@ -45,6 +54,8 @@ Binance_py/
 │   ├── get_binance_data.py        # 數據獲取腳本
 │   ├── analyze_binance_data.py    # 技術分析腳本
 │   ├── generate_readme_report.py  # README 報告生成器
+│   ├── run_telegram_bot.py        # Telegram Bot 執行入口
+│   ├── setup_telegram.py          # Telegram Bot 設定入口
 │   ├── requirements.txt           # Python 依賴清單
 │   └── .gitignore                 # Git 忽略文件配置
 │
@@ -57,8 +68,19 @@ Binance_py/
 - **`get_binance_data.py`**: 從 Binance API 獲取多幣種數據
 - **`analyze_binance_data.py`**: 執行技術分析 (MA, MACD, BOLL, RSI, KDJ)
 - **`generate_readme_report.py`**: 生成虛擬幣1h投資分析報告
-- **`requirements.txt`**: Python 依賴包清單
-- **`.gitignore`**: 版本控制忽略配置
+- **`run_telegram_bot.py`**: Telegram Bot 執行入口 (從根目錄)
+- **`setup_telegram.py`**: Telegram Bot 設定入口 (從根目錄)
+- **`requirements.txt`**: Python 依賴包清單 (包含 python-dotenv)
+- **`.gitignore`**: 版本控制忽略配置 (已排除 .env 文件)
+
+### 📱 Telegram Bot 模組 (`tg/`)
+- **`telegram_bot.py`**: 核心 Bot 功能 (發送訊號、市場總覽)
+- **`telegram_config.py`**: 配置管理 (支援 .env 文件)
+- **`run_telegram_signals.py`**: 主執行腳本
+- **`test_telegram_integration.py`**: 完整功能測試
+- **`.env.example`**: 配置範例文件
+- **`USAGE.md`**: 詳細使用說明
+- **注意**: 精簡的執行模組，專注於核心功能
 
 ### 📊 數據文件 (`data/`)
 - **K線數據**: `*_klines_1h.csv` - 500根1小時K線數據
@@ -107,9 +129,21 @@ python generate_readme_report.py
 # 輸出: README.md (虛擬幣1h投資分析報告)
 ```
 
-### 4. 自動化執行
+### 4. Telegram 訊號發送 (新功能)
+```bash
+# 配置 .env 文件
+cp tg/.env.example tg/.env
+# 編輯 tg/.env 填入 Bot Token 和 Chat ID
+
+# 發送投資訊號
+python run_telegram_bot.py
+# 輸出: 自動發送買入/賣出訊號到 Telegram
+```
+
+### 5. 自動化執行
 - GitHub Actions 每小時自動執行上述流程
 - 自動提交並推送更新的 README.md
+- 可選: 同時發送 Telegram 訊號
 
 ## 🎯 使用建議
 
