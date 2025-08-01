@@ -170,13 +170,15 @@ def generate_readme_content(all_analysis_data):
         readme_content += f"""
 {price_info}
 
-**📊 均線系統**: {indicators['均線系統']}
+**📈 均線系統**: {indicators['均線系統']}
 
-**📈 MACD指標**: {indicators['MACD']}
+**📈 VWMA指標**: {indicators.get('VWMA', 'N/A')}
+
+**🔄 KDJ指標**: {indicators['KDJ']}
 
 **🎯 RSI指標**: {indicators['RSI']}
 
-**🔄 KDJ指標**: {indicators['KDJ']}
+**📊 MACD指標**: {indicators['MACD']}
 
 **🎢 BOLL指標**: {indicators.get('BOLL', 'N/A')}
 
@@ -284,6 +286,13 @@ def generate_readme_content(all_analysis_data):
                 return "🟢" # 价格偏强/高位
             else:
                 return "⚪" # 中性/震荡
+        elif indicator_key == 'VWMA':
+            if "量價配合良好" in indicator or "量能支撐" in indicator:
+                return "🟢" # 量價配合良好
+            elif "量價背離偏空" in indicator or "量能推動" in indicator:
+                return "🔴" # 量價背離偏空
+            else:
+                return "⚪" # 量價關係複雜
         elif indicator_key == 'RSI':
             if "超買區" in indicator or "中性偏強" in indicator:
                 return "🟢" # 偏强
@@ -298,7 +307,7 @@ def generate_readme_content(all_analysis_data):
         else:
             return "⚪"
 
-    indicators_list = ['均線系統', 'MACD', 'RSI', 'KDJ', 'BOLL', 'KC'] # 新增 BOLL 和 KC 到列表
+    indicators_list = ['均線系統', 'VWMA', 'MACD', 'RSI', 'KDJ', 'BOLL', 'KC'] 
     for indicator in indicators_list:
         btc_status = get_indicator_status(btc_data, indicator)
         eth_status = get_indicator_status(eth_data, indicator)
@@ -320,7 +329,7 @@ def generate_readme_content(all_analysis_data):
 - **⏰ 最後更新**: {taipei_time.strftime('%Y-%m-%d %H:%M:%S')} 台北時間
 - **🌍 UTC 時間**: {utc_now.strftime('%Y-%m-%d %H:%M:%S')} UTC
 - **📈 分析幣種**: BTC, ETH, SOL, DOGE, XRP, ADA
-- **🎯 技術指標**: MA, MACD, BOLL, KC, RSI, KDJ
+- **🎯 技術指標**: MA, VWMA, MACD, BOLL, KC, RSI, KDJ
 
 ---
 

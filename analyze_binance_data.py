@@ -7,6 +7,11 @@ def calculate_technical_indicators(df):
     df["MA10"] = df["close"].rolling(window=10).mean()
     df["MA20"] = df["close"].rolling(window=20).mean()
     df["MA120"] = df["close"].rolling(window=120).mean()
+    
+    # Volume Weighted Moving Average (VWMA)
+    df["VWMA5"] = (df["close"] * df["volume"]).rolling(window=5).sum() / df["volume"].rolling(window=5).sum()
+    df["VWMA10"] = (df["close"] * df["volume"]).rolling(window=10).sum() / df["volume"].rolling(window=10).sum()
+    df["VWMA20"] = (df["close"] * df["volume"]).rolling(window=20).sum() / df["volume"].rolling(window=20).sum()
 
     # MACD
     df["EMA12"] = df["close"].ewm(span=12, adjust=False).mean()
@@ -91,6 +96,7 @@ def analyze_indicators(ticker_data, klines_df):
     # Technical Indicator Analysis
     analysis_results["technical_indicators_summary"] = {
         "均線系統": "",
+        "VWMA": "",
         "MACD": "",
         "BOLL": "",
         "KC": "",
@@ -111,6 +117,33 @@ def analyze_indicators(ticker_data, klines_df):
     else:
         analysis_results["technical_indicators_summary"]["均線系統"] = \
             f"均線系統混亂或偏空。MA5={ma5:.2f}, MA10={ma10:.2f}, MA20={ma20:.2f}, MA120={ma120:.2f}。"
+
+    # VWMA Analysis
+    vwma5 = klines_df["VWMA5"].iloc[-1]
+    vwma10 = klines_df["VWMA10"].iloc[-1]
+    vwma20 = klines_df["VWMA20"].iloc[-1]
+    
+    # Compare VWMA with regular MA to assess volume impact
+    vwma_vs_ma5 = ((vwma5 - ma5) / ma5) * 100
+    vwma_vs_ma20 = ((vwma20 - ma20) / ma20) * 100
+    
+    if vwma5 > vwma10 and vwma10 > vwma20 and close_price > vwma20:
+        if vwma_vs_ma20 > 0.1:
+            analysis_results["technical_indicators_summary"]["VWMA"] = \
+                f"量價配合良好。VWMA5（{vwma5:.2f}）>VWMA10（{vwma10:.2f}）>VWMA20（{vwma20:.2f}），且VWMA20較MA20高{vwma_vs_ma20:.2f}%，顯示上漲有量能支撐。"
+        else:
+            analysis_results["technical_indicators_summary"]["VWMA"] = \
+                f"量價排列偏多但量能一般。VWMA5（{vwma5:.2f}）>VWMA10（{vwma10:.2f}）>VWMA20（{vwma20:.2f}），VWMA與MA差異{vwma_vs_ma20:.2f}%，量能支撐有限。"
+    elif vwma5 < vwma10 and vwma10 < vwma20 and close_price < vwma20:
+        if vwma_vs_ma20 < -0.1:
+            analysis_results["technical_indicators_summary"]["VWMA"] = \
+                f"量價背離偏空。VWMA5（{vwma5:.2f}）<VWMA10（{vwma10:.2f}）<VWMA20（{vwma20:.2f}），且VWMA20較MA20低{abs(vwma_vs_ma20):.2f}%，顯示下跌有量能推動。"
+        else:
+            analysis_results["technical_indicators_summary"]["VWMA"] = \
+                f"量價排列偏空但量能不足。VWMA5（{vwma5:.2f}）<VWMA10（{vwma10:.2f}）<VWMA20（{vwma20:.2f}），VWMA與MA差異{vwma_vs_ma20:.2f}%，下跌缺乏量能。"
+    else:
+        analysis_results["technical_indicators_summary"]["VWMA"] = \
+            f"量價關係複雜。VWMA5={vwma5:.2f}, VWMA10={vwma10:.2f}, VWMA20={vwma20:.2f}，與MA偏差{vwma_vs_ma5:.2f}%，需觀察量價配合度。"
 
     # MACD Analysis
     dif = klines_df["DIF"].iloc[-1]
