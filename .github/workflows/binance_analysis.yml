@@ -2,8 +2,8 @@ name: Virtual Currency 30m Analysis & README Generator
 
 on:
   schedule:
-    # 每30分鐘執行一次 (UTC時間)
-    - cron: '0,30 * * * *'
+    # 每30分鐘執行，但跳過 UTC 18:00-23:00 (台北時間 2:00-7:00)
+    - cron: '0,30 0-17 * * *'
   workflow_dispatch: # 手動觸發
 
 permissions:
@@ -15,6 +15,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Check execution time
+      run: |
+        CURRENT_HOUR=$(date -u +%H)
+        if [ $CURRENT_HOUR -ge 18 ] || [ $CURRENT_HOUR -lt 0 ]; then
+          echo "跳過執行：目前時間在維護時段 (台北時間 2:00-7:00)"
+          exit 0
+        fi
+        echo "繼續執行：目前時間 UTC $CURRENT_HOUR:00"
+    
     - name: Checkout code
       uses: actions/checkout@v4
       with:
