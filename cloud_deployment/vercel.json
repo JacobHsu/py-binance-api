@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/analyze.py": {
+      "runtime": "python3.9"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/analyze",
+      "schedule": "0,30 * * * *"
+    }
+  ]
+}
