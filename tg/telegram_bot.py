@@ -233,10 +233,10 @@ class TelegramBot:
                 # 時框分歧時的具體建議
                 if ("多頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "多頭" in trend_1h):
                     signal = "🟡謹慎做多"
-                    buy_signals.append(symbol)
-                elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "空頭" in trend_1h):
+                    neutral_signals.append(symbol)  # 謹慎做多不發送買入信號
+                elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_1h and "空頭" in trend_1h):
                     signal = "🟡謹慎做空"
-                    sell_signals.append(symbol)
+                    neutral_signals.append(symbol)  # 謹慎做空不發送賣出信號
                 else:
                     signal = "⚪觀望等待"
                     neutral_signals.append(symbol)
