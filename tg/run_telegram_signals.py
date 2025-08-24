@@ -114,19 +114,19 @@ def main():
                 combined_advice = "⚪雙重糾結"
                 neutral_signals.append((symbol, data))
             else:
-                # 時框分歧時給出具體操作建議
+                # 時框分歧時給出具體操作建議 - 謹慎做多/空不發送單幣種信號
                 if "多頭" in trend_15m and "糾結" in trend_1h:
                     combined_advice = "🟡謹慎做多"
-                    buy_signals.append((symbol, data))
+                    neutral_signals.append((symbol, data))  # 謹慎做多不發送買入信號
                 elif "糾結" in trend_15m and "多頭" in trend_1h:
                     combined_advice = "🟡謹慎做多"
-                    buy_signals.append((symbol, data))
+                    neutral_signals.append((symbol, data))  # 謹慎做多不發送買入信號
                 elif "空頭" in trend_15m and "糾結" in trend_1h:
                     combined_advice = "🟡謹慎做空"
-                    sell_signals.append((symbol, data))
+                    neutral_signals.append((symbol, data))  # 謹慎做空不發送賣出信號
                 elif "糾結" in trend_15m and "空頭" in trend_1h:
                     combined_advice = "🟡謹慎做空"
-                    sell_signals.append((symbol, data))
+                    neutral_signals.append((symbol, data))  # 謹慎做空不發送賣出信號
                 elif "多頭" in trend_15m and "空頭" in trend_1h:
                     combined_advice = "⚪觀望等待"
                     neutral_signals.append((symbol, data))
