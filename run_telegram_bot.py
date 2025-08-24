@@ -78,17 +78,26 @@ def main():
             else:
                 trend_1h = data.get('trend_type', '糾結')
             
-            # 判斷信號
-            if trend_15m == trend_1h and trend_15m == "多頭":
-                buy_signals.append((symbol, data))  # 雙重看多
-            elif (trend_15m == "多頭" and trend_1h == "糾結") or (trend_15m == "糾結" and trend_1h == "多頭"):
-                buy_signals.append((symbol, data))  # 謹慎做多
-            elif trend_15m == trend_1h and trend_1h == "空頭":
-                sell_signals.append((symbol, data))  # 雙重看空
-            elif (trend_15m == "空頭" and trend_1h == "糾結") or (trend_15m == "糾結" and trend_1h == "空頭"):
-                sell_signals.append((symbol, data))  # 謹慎做空
+            # 判斷信號 - 統一邏輯：只有明確看多/空才發送單幣種訊號
+            if trend_15m == trend_1h and "糾結" not in trend_15m:
+                if "多頭" in trend_15m:
+                    buy_signals.append((symbol, data))  # 明確看多
+                    print(f"✅ {symbol} 明確看多 - 加入買入訊號")
+                elif "空頭" in trend_15m:
+                    sell_signals.append((symbol, data))  # 明確看空
+                    print(f"✅ {symbol} 明確看空 - 加入賣出訊號")
+            elif "糾結" in trend_15m and "糾結" in trend_1h:
+                neutral_signals.append((symbol, data))  # 雙重糾結
+                print(f"❌ {symbol} 雙重糾結 - 不發送訊號")
             else:
+                # 時框分歧時不發送訊號（謹慎做多/空會在市場總覽中顯示）
                 neutral_signals.append((symbol, data))
+                if ("多頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "多頭" in trend_1h):
+                    print(f"❌ {symbol} 謹慎做多 - 僅在總覽顯示，不發送單幣種訊號")
+                elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_1h and "空頭" in trend_1h):
+                    print(f"❌ {symbol} 謹慎做空 - 僅在總覽顯示，不發送單幣種訊號")
+                else:
+                    print(f"❌ {symbol} 觀望等待 - 不發送訊號")
         
         print(f"\n📊 訊號統計:")
         print(f"🟢 買入訊號: {len(buy_signals)} 個")
