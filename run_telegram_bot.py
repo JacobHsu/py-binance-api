@@ -52,25 +52,23 @@ def main():
         # 初始化 Bot
         bot = TelegramBot(config.BOT_TOKEN, config.CHAT_ID)
         
-        # 統計訊號
+        # 先發送市場總覽，並從中獲取訊號判斷結果
+        print("\n📊 分析市場訊號...")
+        
+        # 使用與 send_market_summary 相同的邏輯來判斷訊號
         buy_signals = []
         sell_signals = []
         neutral_signals = []
+        market_signals = {}  # 儲存每個幣種的訊號結果
         
-        for symbol in config.SUPPORTED_SYMBOLS:
-            if symbol not in analysis_data:
-                print(f"⚠️  {symbol} 數據不存在，跳過")
+        for symbol, data in analysis_data.items():
+            if symbol not in config.SUPPORTED_SYMBOLS:
                 continue
                 
-            data = analysis_data[symbol]
-            change_24h = data['24hr_change_percent']
-            trend = data['current_trend']
-            
-            # 判斷信號 - 改用綜合建議邏輯
             trend_15m = "糾結"
             trend_1h = "糾結"
             
-            # 獲取多時間框架趨勢
+            # 獲取多時間框架趨勢（與市場總覽邏輯完全相同）
             if '15m' in data and 'trend_type' in data['15m']:
                 trend_15m = data['15m']['trend_type']
             if '1h' in data and 'trend_type' in data['1h']:
@@ -78,26 +76,38 @@ def main():
             else:
                 trend_1h = data.get('trend_type', '糾結')
             
-            # 判斷信號 - 統一邏輯：只有明確看多/空才發送單幣種訊號
+            # 綜合建議邏輯（與 send_market_summary 完全相同）
             if trend_15m == trend_1h and "糾結" not in trend_15m:
                 if "多頭" in trend_15m:
-                    buy_signals.append((symbol, data))  # 明確看多
+                    signal = "🟢明確看多"
+                    buy_signals.append((symbol, data))
                     print(f"✅ {symbol} 明確看多 - 加入買入訊號")
                 elif "空頭" in trend_15m:
-                    sell_signals.append((symbol, data))  # 明確看空
+                    signal = "🔴明確看空"
+                    sell_signals.append((symbol, data))
                     print(f"✅ {symbol} 明確看空 - 加入賣出訊號")
+                else:
+                    signal = "📊雙重震盪"
+                    neutral_signals.append((symbol, data))
+                    print(f"❌ {symbol} 雙重震盪 - 不發送訊號")
             elif "糾結" in trend_15m and "糾結" in trend_1h:
-                neutral_signals.append((symbol, data))  # 雙重糾結
+                signal = "⚪雙重糾結"
+                neutral_signals.append((symbol, data))
                 print(f"❌ {symbol} 雙重糾結 - 不發送訊號")
             else:
-                # 時框分歧時不發送訊號（謹慎做多/空會在市場總覽中顯示）
-                neutral_signals.append((symbol, data))
+                # 時框分歧時的具體建議
                 if ("多頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "多頭" in trend_1h):
+                    signal = "🟡謹慎做多"
                     print(f"❌ {symbol} 謹慎做多 - 僅在總覽顯示，不發送單幣種訊號")
                 elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_1h and "空頭" in trend_1h):
+                    signal = "🟡謹慎做空"
                     print(f"❌ {symbol} 謹慎做空 - 僅在總覽顯示，不發送單幣種訊號")
                 else:
+                    signal = "⚪觀望等待"
                     print(f"❌ {symbol} 觀望等待 - 不發送訊號")
+                neutral_signals.append((symbol, data))
+            
+            market_signals[symbol] = signal
         
         print(f"\n📊 訊號統計:")
         print(f"🟢 買入訊號: {len(buy_signals)} 個")
@@ -114,6 +124,11 @@ def main():
             print(f"\n🟢 發送 {len(buy_signals)} 個買入訊號...")
             for symbol, data in buy_signals:
                 print(f"  📤 {symbol} 買入訊號")
+                
+                # 從市場訊號判斷結果獲取正確的 combined_advice
+                signal = market_signals.get(symbol, "明確看多")
+                combined_advice = signal.replace("🟢", "").strip()  # 移除emoji，只保留文字
+                
                 bot.send_buy_signal(
                     symbol=symbol,
                     price=data['current_price'],
@@ -121,7 +136,8 @@ def main():
                     change_4h=data.get('4h_change_percent', 0),
                     change_24h=data['24hr_change_percent'],
                     trend=data['current_trend'],
-                    analysis_data=data
+                    analysis_data=data,
+                    combined_advice=combined_advice
                 )
                 # 添加發送間隔
                 if config.MESSAGE_INTERVAL > 0:
@@ -132,6 +148,11 @@ def main():
             print(f"\n🔴 發送 {len(sell_signals)} 個賣出訊號...")
             for symbol, data in sell_signals:
                 print(f"  📤 {symbol} 賣出訊號")
+                
+                # 從市場訊號判斷結果獲取正確的訊號狀態（用於調試）
+                signal = market_signals.get(symbol, "明確看空")
+                print(f"    💡 {symbol} 訊號狀態: {signal}")
+                
                 bot.send_sell_signal(
                     symbol=symbol,
                     price=data['current_price'],
