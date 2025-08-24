@@ -39,15 +39,21 @@ def check_for_buy_signals(analysis_data):
         else:
             trend_1h = data.get('trend_type', '糾結')
         
-        # 判斷是否為買入信號
+        # 判斷是否為買入信號並計算綜合建議
         is_buy_signal = False
+        combined_advice = ""
+        
         if trend_15m == trend_1h and trend_15m == "多頭":
-            is_buy_signal = True  # 雙重看多
+            is_buy_signal = True  # 明確看多 - 雙重看多
+            combined_advice = "明確看多"
         elif (trend_15m == "多頭" and trend_1h == "糾結") or (trend_15m == "糾結" and trend_1h == "多頭"):
-            is_buy_signal = True  # 謹慎做多
+            combined_advice = "謹慎做多"
+            # 謹慎做多不發送買入信號，只在市場總覽中顯示
+        else:
+            combined_advice = "觀望等待"
         
         if is_buy_signal:
-            buy_signals.append((symbol, data))
+            buy_signals.append((symbol, data, combined_advice))
     
     return buy_signals
 
@@ -90,8 +96,8 @@ def main():
         # 只發送買入訊號
         if config.SEND_BUY_SIGNALS:
             print(f"🟢 發送 {len(buy_signals)} 個買入訊號...")
-            for symbol, data in buy_signals:
-                print(f"  📤 發送 {symbol} 買入訊號")
+            for symbol, data, combined_advice in buy_signals:
+                print(f"  📤 發送 {symbol} 買入訊號 ({combined_advice})")
                 bot.send_buy_signal(
                     symbol=symbol,
                     price=data['current_price'],
@@ -99,7 +105,8 @@ def main():
                     change_4h=data.get('4h_change_percent', 0),
                     change_24h=data['24hr_change_percent'],
                     trend=data['current_trend'],
-                    analysis_data=data
+                    analysis_data=data,
+                    combined_advice=combined_advice
                 )
         
         print("✅ Telegram 訊號發送完成！")

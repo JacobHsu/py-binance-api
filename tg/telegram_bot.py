@@ -50,7 +50,7 @@ class TelegramBot:
             print(f"❌ 發送 Telegram 訊息失敗: {e}")
             return None
     
-    def send_buy_signal(self, symbol, price, change_1h, change_4h, change_24h, trend, analysis_data=None, combined_advice="明確看多"):
+    def send_buy_signal(self, symbol, price, change_1h, change_4h, change_24h, trend, analysis_data=None, combined_advice=None):
         """
         發送買入訊號
         
@@ -62,8 +62,12 @@ class TelegramBot:
             change_24h (float): 24小時變化百分比
             trend (str): 趨勢描述
             analysis_data (dict): 詳細分析數據
-            combined_advice (str): 綜合建議（如："明確看多"、"謹慎做多"等）
+            combined_advice (str): 綜合建議（如："明確看多"、"謹慎做多"等），必須提供
         """
+        # 檢查必要參數
+        if combined_advice is None:
+            raise ValueError("combined_advice 參數是必須的，不能為 None")
+        
         # 幣種名稱和圖標映射
         symbol_names = {
             "BTCUSDT": {"name": "BTC", "icon": "₿", "emoji": "🟠"},

@@ -157,6 +157,9 @@ def main():
             print(f"\n🟢 發送 {len(buy_signals)} 個買入訊號...")
             for symbol, data in buy_signals:
                 print(f"  📤 {symbol} 買入訊號")
+                # 從數據中獲取正確的綜合建議
+                combined_advice = data.get('combined_advice', '明確看多').replace('🟢', '').replace('🟡', '').strip()
+                
                 bot.send_buy_signal(
                     symbol=symbol,
                     price=data['current_price'],
@@ -164,7 +167,8 @@ def main():
                     change_4h=data.get('4h_change_percent', 0),
                     change_24h=data['24hr_change_percent'],
                     trend=data['current_trend'],
-                    analysis_data=data
+                    analysis_data=data,
+                    combined_advice=combined_advice
                 )
                 # 添加發送間隔
                 if config.MESSAGE_INTERVAL > 0:
