@@ -369,18 +369,26 @@ def check_and_send_signals(bot_token, chat_id, send_summary=True):
         if '1h' in data and 'trend_type' in data['1h']:
             trend_1h = data['1h']['trend_type']
         else:
+            # 向後兼容：如果沒有1h數據，使用根層級的趨勢數據
             trend_1h = data.get('trend_type', '糾結')
         
         # 綜合建議邏輯判斷是否發送信號
         should_send_buy = False
         should_send_sell = False
         
+        # 調試信息：顯示實際的趨勢判斷
+        print(f"📊 {symbol} 趨勢判斷: 15M={trend_15m}, 1H={trend_1h}")
+        
         # 只有明確看多時才發送買入信號
         if trend_15m == trend_1h and "糾結" not in trend_15m:
             if "多頭" in trend_15m:
                 should_send_buy = True  # 明確看多
+                print(f"✅ {symbol} 符合明確看多條件")
             elif "空頭" in trend_15m:
                 should_send_sell = True  # 明確看空
+                print(f"✅ {symbol} 符合明確看空條件")
+        else:
+            print(f"❌ {symbol} 不符合明確看多/空條件")
         
         # 發送買入信號
         if should_send_buy:
