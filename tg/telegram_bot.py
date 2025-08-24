@@ -310,24 +310,18 @@ def load_analysis_data():
     """
     載入分析數據
     """
-    # 嘗試多個可能的路徑
-    possible_paths = [
-        "data/multi_investment_report.json",
-        "../data/multi_investment_report.json",
-        "../../data/multi_investment_report.json"
-    ]
+    data_path = "data/multi_investment_report.json"
     
-    for path in possible_paths:
-        try:
-            if os.path.exists(path):
-                with open(path, "r", encoding="utf-8") as f:
-                    return json.load(f)
-        except Exception as e:
-            continue
-    
-    print("❌ 找不到分析數據文件，請先執行 analyze_binance_data.py")
-    print("   嘗試的路徑:", possible_paths)
-    return None
+    try:
+        with open(data_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print(f"❌ 找不到分析數據文件: {data_path}")
+        print("   請先執行 analyze_binance_data.py")
+        return None
+    except Exception as e:
+        print(f"❌ 讀取數據文件時發生錯誤: {e}")
+        return None
 
 def check_and_send_signals(bot_token, chat_id, send_summary=True):
     """
@@ -363,7 +357,7 @@ def check_and_send_signals(bot_token, chat_id, send_summary=True):
         trend_15m = "糾結"
         trend_1h = "糾結"
         
-        # 獲取多時間框架趨勢
+        # 獲取多時間框架趨勢（與 README 使用相同邏輯）
         if '15m' in data and 'trend_type' in data['15m']:
             trend_15m = data['15m']['trend_type']
         if '1h' in data and 'trend_type' in data['1h']:
