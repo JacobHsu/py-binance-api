@@ -50,7 +50,7 @@ class TelegramBot:
             print(f"❌ 發送 Telegram 訊息失敗: {e}")
             return None
     
-    def send_buy_signal(self, symbol, price, change_1h, change_4h, change_24h, trend, analysis_data=None):
+    def send_buy_signal(self, symbol, price, change_1h, change_4h, change_24h, trend, analysis_data=None, combined_advice="明確看多"):
         """
         發送買入訊號
         
@@ -62,6 +62,7 @@ class TelegramBot:
             change_24h (float): 24小時變化百分比
             trend (str): 趨勢描述
             analysis_data (dict): 詳細分析數據
+            combined_advice (str): 綜合建議（如："明確看多"、"謹慎做多"等）
         """
         # 幣種名稱和圖標映射
         symbol_names = {
@@ -99,7 +100,7 @@ class TelegramBot:
 
 📈 <b>趨勢分析</b>: {trend}
 
-🟢 <b>建議操作</b>: 買入 (BUY)
+🟢 <b>綜合建議</b>: {combined_advice}
 
 ⏰ 訊號時間: {current_time} (台北時間)
 
@@ -374,15 +375,12 @@ def check_and_send_signals(bot_token, chat_id, send_summary=True):
         should_send_buy = False
         should_send_sell = False
         
+        # 只有明確看多時才發送買入信號
         if trend_15m == trend_1h and "糾結" not in trend_15m:
             if "多頭" in trend_15m:
                 should_send_buy = True  # 明確看多
             elif "空頭" in trend_15m:
                 should_send_sell = True  # 明確看空
-        elif ("多頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "多頭" in trend_1h):
-            should_send_buy = True  # 謹慎做多
-        elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "空頭" in trend_1h):
-            should_send_sell = True  # 謹慎做空
         
         # 發送買入信號
         if should_send_buy:
@@ -394,7 +392,8 @@ def check_and_send_signals(bot_token, chat_id, send_summary=True):
                 change_4h=change_4h,
                 change_24h=change_24h,
                 trend=trend,
-                analysis_data=data
+                analysis_data=data,
+                combined_advice="明確看多"
             )
         
         # 發送賣出信號
