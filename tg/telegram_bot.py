@@ -373,16 +373,29 @@ def check_and_send_signals(bot_token, chat_id, send_summary=True):
         # 調試信息：顯示實際的趨勢判斷
         print(f"📊 {symbol} 趨勢判斷: 15M={trend_15m}, 1H={trend_1h}")
         
-        # 只有明確看多時才發送買入信號
+        # 使用與 send_market_summary 完全相同的邏輯
+        combined_advice = ""
         if trend_15m == trend_1h and "糾結" not in trend_15m:
             if "多頭" in trend_15m:
-                should_send_buy = True  # 明確看多
+                combined_advice = "明確看多"
+                should_send_buy = True
                 print(f"✅ {symbol} 符合明確看多條件")
             elif "空頭" in trend_15m:
-                should_send_sell = True  # 明確看空
+                combined_advice = "明確看空"
+                should_send_sell = True
                 print(f"✅ {symbol} 符合明確看空條件")
+        elif "糾結" in trend_15m and "糾結" in trend_1h:
+            combined_advice = "雙重糾結"
+            print(f"❌ {symbol} 雙重糾結，不發送信號")
         else:
-            print(f"❌ {symbol} 不符合明確看多/空條件")
+            # 時框分歧時不發送任何信號
+            if ("多頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "多頭" in trend_1h):
+                combined_advice = "謹慎做多"
+            elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_1h and "空頭" in trend_1h):
+                combined_advice = "謹慎做空"
+            else:
+                combined_advice = "觀望等待"
+            print(f"❌ {symbol} {combined_advice}，不發送信號")
         
         # 發送買入信號
         if should_send_buy:
@@ -395,7 +408,7 @@ def check_and_send_signals(bot_token, chat_id, send_summary=True):
                 change_24h=change_24h,
                 trend=trend,
                 analysis_data=data,
-                combined_advice="明確看多"
+                combined_advice=combined_advice
             )
         
         # 發送賣出信號
