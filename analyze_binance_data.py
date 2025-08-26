@@ -361,10 +361,26 @@ def analyze_indicators(ticker_data, klines_df):
     # Fund Flow Data (Placeholder, actual data not available from public API)
     analysis_results["fund_flow_data"] = "24H合約淨流入1.81億USDT（主力偏多），4H淨流入3908萬USDT加速，配合現貨資金同步流入（24H淨流入2916萬USDT），顯示買盤持續。"
 
-    # Overall Direction and Entry Strategy (Placeholder, needs more sophisticated logic)
+    # Overall Direction and Entry Strategy (Based on trend analysis)
+    trend_type = analysis_results["trend_type"]
+    
+    # 根據趨勢類型生成相應的交易建議
+    if trend_type == "多頭":
+        direction = "積極做多。多頭排列確立，價格站穩關鍵支撐{major_support:.2f}且指標共振偏多，突破{major_resistance:.2f}壓力確認趨勢延續。"
+        entry_timing = "激進者：現價{current_price:.2f}直接做多，突破{major_resistance:.2f}加倉。穩健者：等待回踩{ma20:.2f}（MA20）企穩後進場。"
+    elif trend_type == "空頭":
+        direction = "謹慎做空。空頭排列明確，價格跌破關鍵支撐{major_support:.2f}且指標共振偏空，反彈至{major_resistance:.2f}壓力可考慮做空。"
+        entry_timing = "激進者：現價{current_price:.2f}輕倉做空，反彈至{major_resistance:.2f}加倉。穩健者：等待反彈至{ma20:.2f}（MA20）阻力後進場。"
+    elif trend_type == "糾結":
+        direction = "觀望等待。均線糾結狀態，方向不明確，等待突破{major_resistance:.2f}或跌破{major_support:.2f}後再做決策。"
+        entry_timing = "激進者：暫時觀望，等待方向選擇。穩健者：突破{major_resistance:.2f}做多或跌破{major_support:.2f}做空。"
+    else:  # 震盪
+        direction = "區間操作。震盪整理格局，可在{major_support:.2f}附近做多，{major_resistance:.2f}附近做空，注意控制倉位。"
+        entry_timing = "激進者：現價{current_price:.2f}可輕倉操作。穩健者：等待接近區間邊界{major_support:.2f}或{major_resistance:.2f}後進場。"
+    
     analysis_results["analysis_result"] = {
-        "方向": "謹慎做多。價格站穩關鍵支撐{major_support:.2f}且指標共振偏多，但需突破{major_resistance:.2f}壓力確認趨勢。",
-        "入場時機": "激進者：現價{current_price:.2f}輕倉試多，突破{major_resistance:.2f}加倉。穩健者：等待回踩{ma20:.2f}（MA20）或{major_support:.2f}（S1）企穩後進場。",
+        "方向": direction,
+        "入場時機": entry_timing,
         "止損設定": "{stop_loss:.2f}（-1.1%，低於支撐S1），或浮動止損3%以內。",
         "目標價位": "第一目標{target1:.2f}（24H高點，+1.4%），第二目標{target2:.2f}（前波段高點延伸，+2.3%）。"
     }
