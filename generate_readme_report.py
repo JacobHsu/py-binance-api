@@ -250,6 +250,8 @@ def generate_readme_content(all_analysis_data):
 
 **↔️ KC指標**: {indicators.get('KC', 'N/A')}
 
+**📈 DMI指標**: {indicators.get('DMI', 'N/A')}
+
 **💡 交易建議**: {analysis['analysis_result']['方向']}
 
 **⏰ 入場時機**: {analysis['analysis_result']['入場時機']}
@@ -366,6 +368,17 @@ def generate_readme_content(all_analysis_data):
                 return "🔴" # 偏弱
             else:
                 return "⚪" # 中性
+        elif indicator_key == 'DMI':
+            if "多頭強勢趨勢" in indicator or "多頭中等趨勢" in indicator:
+                return "🟢" # 多頭趨勢
+            elif "空頭強勢趨勢" in indicator or "空頭中等趨勢" in indicator:
+                return "🔴" # 空頭趨勢
+            elif "多頭偏向" in indicator:
+                return "🟡" # 多頭偏向但趨勢弱
+            elif "空頭偏向" in indicator:
+                return "🟠" # 空頭偏向但趨勢弱
+            else:
+                return "⚪" # 方向不明或趨勢弱
         elif "金叉" in indicator or "多頭" in indicator or "偏強" in indicator:
             return "🟢"
         elif "死叉" in indicator or "空頭" in indicator or "偏弱" in indicator:
@@ -373,7 +386,7 @@ def generate_readme_content(all_analysis_data):
         else:
             return "⚪"
 
-    indicators_list = ['均線系統', 'VWMA', 'MACD', 'RSI', 'KDJ', 'BOLL', 'KC'] 
+    indicators_list = ['均線系統', 'VWMA', 'MACD', 'RSI', 'KDJ', 'BOLL', 'KC', 'DMI'] 
     for indicator in indicators_list:
         btc_status = get_indicator_status(btc_data, indicator)
         eth_status = get_indicator_status(eth_data, indicator)
@@ -395,7 +408,7 @@ def generate_readme_content(all_analysis_data):
 - **⏰ 最後更新**: {taipei_time.strftime('%Y-%m-%d %H:%M:%S')} 台北時間
 - **🌍 UTC 時間**: {utc_now.strftime('%Y-%m-%d %H:%M:%S')} UTC
 - **📈 分析幣種**: BTC, ETH, SOL, DOGE, XRP, ADA
-- **🎯 技術指標**: MA, VWMA, MACD, BOLL, KC, RSI, KDJ
+- **🎯 技術指標**: MA, VWMA, MACD, BOLL, KC, RSI, KDJ, DMI
 
 ---
 

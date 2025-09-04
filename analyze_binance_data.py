@@ -51,6 +51,45 @@ def calculate_technical_indicators(df):
     df["D"] = df["K"].ewm(span=3, adjust=False).mean()
     df["J"] = 3 * df["K"] - 2 * df["D"]
 
+    # DMI (Directional Movement Index)
+    # 計算真實波幅 (True Range)
+    df["TR1"] = df["high"] - df["low"]
+    df["TR2"] = abs(df["high"] - df["close"].shift(1))
+    df["TR3"] = abs(df["low"] - df["close"].shift(1))
+    df["TR"] = df[["TR1", "TR2", "TR3"]].max(axis=1)
+    
+    # 計算方向性移動 (Directional Movement)
+    df["DM_Plus"] = 0.0
+    df["DM_Minus"] = 0.0
+    
+    # 計算+DM和-DM
+    high_diff = df["high"] - df["high"].shift(1)
+    low_diff = df["low"].shift(1) - df["low"]
+    
+    # +DM: 當前高點 > 前一高點 且 高點差 > 低點差時
+    df.loc[(high_diff > 0) & (high_diff > low_diff), "DM_Plus"] = high_diff
+    # -DM: 當前低點 < 前一低點 且 低點差 > 高點差時  
+    df.loc[(low_diff > 0) & (low_diff > high_diff), "DM_Minus"] = low_diff
+    
+    # 計算14期平滑移動平均
+    period = 14
+    df["TR14"] = df["TR"].rolling(window=period).sum()
+    df["DM_Plus14"] = df["DM_Plus"].rolling(window=period).sum()
+    df["DM_Minus14"] = df["DM_Minus"].rolling(window=period).sum()
+    
+    # 計算方向性指標 DI+ 和 DI-
+    df["DI_Plus"] = (df["DM_Plus14"] / df["TR14"]) * 100
+    df["DI_Minus"] = (df["DM_Minus14"] / df["TR14"]) * 100
+    
+    # 計算DX (Directional Index)
+    df["DX"] = abs(df["DI_Plus"] - df["DI_Minus"]) / (df["DI_Plus"] + df["DI_Minus"]) * 100
+    
+    # 計算ADX (Average Directional Index) - 14期移動平均
+    df["ADX"] = df["DX"].rolling(window=period).mean()
+    
+    # 清理臨時列
+    df.drop(["TR1", "TR2", "TR3", "DM_Plus", "DM_Minus", "TR14", "DM_Plus14", "DM_Minus14", "DX"], axis=1, inplace=True)
+
     return df
 
 def analyze_indicators(ticker_data, klines_df):
@@ -223,7 +262,8 @@ def analyze_indicators(ticker_data, klines_df):
         "BOLL": "",
         "KC": "",
         "RSI": "",
-        "KDJ": ""
+        "KDJ": "",
+        "DMI": ""
     }
 
     # Enhanced MA Analysis using the new detection logic
@@ -350,6 +390,44 @@ def analyze_indicators(ticker_data, klines_df):
     else:
         analysis_results["technical_indicators_summary"]["KDJ"] = \
             f"KDJ指標震盪或處於極端區域。K值={k_val:.2f}, D值={d_val:.2f}, J值={j_val:.2f}。"
+
+    # DMI Analysis
+    di_plus = klines_df["DI_Plus"].iloc[-1]
+    di_minus = klines_df["DI_Minus"].iloc[-1]
+    adx = klines_df["ADX"].iloc[-1]
+    
+    # 判斷趨勢強度
+    if adx >= 25:
+        trend_strength = "強勢"
+    elif adx >= 20:
+        trend_strength = "中等"
+    else:
+        trend_strength = "弱勢"
+    
+    # 判斷趨勢方向和交叉信號
+    if di_plus > di_minus:
+        if adx >= 25:
+            analysis_results["technical_indicators_summary"]["DMI"] = \
+                f"多頭{trend_strength}趨勢。DI+（{di_plus:.2f}）高於DI-（{di_minus:.2f}），ADX（{adx:.2f}）顯示{trend_strength}趨勢，上漲動能充足。"
+        elif adx >= 20:
+            analysis_results["technical_indicators_summary"]["DMI"] = \
+                f"多頭{trend_strength}趨勢。DI+（{di_plus:.2f}）略高於DI-（{di_minus:.2f}），ADX（{adx:.2f}）顯示{trend_strength}趨勢，上漲動能一般。"
+        else:
+            analysis_results["technical_indicators_summary"]["DMI"] = \
+                f"多頭偏向但趨勢{trend_strength}。DI+（{di_plus:.2f}）高於DI-（{di_minus:.2f}），但ADX（{adx:.2f}）偏低，缺乏明確方向。"
+    elif di_minus > di_plus:
+        if adx >= 25:
+            analysis_results["technical_indicators_summary"]["DMI"] = \
+                f"空頭{trend_strength}趨勢。DI-（{di_minus:.2f}）高於DI+（{di_plus:.2f}），ADX（{adx:.2f}）顯示{trend_strength}趨勢，下跌動能充足。"
+        elif adx >= 20:
+            analysis_results["technical_indicators_summary"]["DMI"] = \
+                f"空頭{trend_strength}趨勢。DI-（{di_minus:.2f}）略高於DI+（{di_plus:.2f}），ADX（{adx:.2f}）顯示{trend_strength}趨勢，下跌動能一般。"
+        else:
+            analysis_results["technical_indicators_summary"]["DMI"] = \
+                f"空頭偏向但趨勢{trend_strength}。DI-（{di_minus:.2f}）高於DI+（{di_plus:.2f}），但ADX（{adx:.2f}）偏低，缺乏明確方向。"
+    else:
+        analysis_results["technical_indicators_summary"]["DMI"] = \
+            f"方向不明。DI+（{di_plus:.2f}）與DI-（{di_minus:.2f}）接近，ADX（{adx:.2f}）顯示{trend_strength}趨勢，市場處於整理狀態。"
 
     # Funding Rate (Placeholder, actual data not available from public API)
     analysis_results["funding_rate"] = "0.01000000%（中性），未顯示極端多空情緒。"
