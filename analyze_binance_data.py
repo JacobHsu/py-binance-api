@@ -340,15 +340,29 @@ def analyze_indicators(ticker_data, klines_df):
     bb_middle = klines_df["BB_Middle"].iloc[-1]
     bb_lower = klines_df["BB_Lower"].iloc[-1]
     percent_b = klines_df["Percent_B"].iloc[-1]
-    if close_price > bb_upper * 0.95: # Close to upper band
+    
+    # 根據 %B 值進行更精確的判斷
+    if percent_b > 1.0:  # 價格突破上軌
         analysis_results["technical_indicators_summary"]["BOLL"] = \
-            f"價格貼近上軌（{bb_upper:.2f}），%B（{percent_b:.2%}）顯示未超買，中軌（{bb_middle:.2f}）提供動態支撐。"
-    elif close_price < bb_lower * 1.05: # Close to lower band
+            f"價格突破上軌（{bb_upper:.2f}），%B（{percent_b:.2%}）顯示超買，注意回調風險。"
+    elif percent_b > 0.8:  # 價格接近上軌
         analysis_results["technical_indicators_summary"]["BOLL"] = \
-            f"價格貼近下軌（{bb_lower:.2f}），%B（{percent_b:.2%}）顯示未超賣，中軌（{bb_middle:.2f}）提供動態壓力。"
-    else:
+            f"價格貼近上軌（{bb_upper:.2f}），%B（{percent_b:.2%}）偏高，中軌（{bb_middle:.2f}）提供動態支撐。"
+    elif percent_b < 0.0:  # 價格跌破下軌
         analysis_results["technical_indicators_summary"]["BOLL"] = \
-            f"價格在布林帶中軌附近震盪。上軌={bb_upper:.2f}, 中軌={bb_middle:.2f}, 下軌={bb_lower:.2f}, %B={percent_b:.2%}。"
+            f"價格跌破下軌（{bb_lower:.2f}），%B（{percent_b:.2%}）顯示超賣，可能出現反彈。"
+    elif percent_b < 0.2:  # 價格接近下軌
+        analysis_results["technical_indicators_summary"]["BOLL"] = \
+            f"價格貼近下軌（{bb_lower:.2f}），%B（{percent_b:.2%}）偏低，中軌（{bb_middle:.2f}）提供動態壓力。"
+    elif percent_b > 0.6:  # 價格在上半部
+        analysis_results["technical_indicators_summary"]["BOLL"] = \
+            f"價格位於布林帶上半部，%B（{percent_b:.2%}）偏強，上軌（{bb_upper:.2f}）為壓力位。"
+    elif percent_b < 0.4:  # 價格在下半部
+        analysis_results["technical_indicators_summary"]["BOLL"] = \
+            f"價格位於布林帶下半部，%B（{percent_b:.2%}）偏弱，下軌（{bb_lower:.2f}）為支撐位。"
+    else:  # 價格在中軌附近
+        analysis_results["technical_indicators_summary"]["BOLL"] = \
+            f"價格在布林帶中軌附近震盪，%B（{percent_b:.2%}）中性，上軌（{bb_upper:.2f}）壓力，下軌（{bb_lower:.2f}）支撐。"
 
     # KC Analysis
     kc_upper = klines_df["KC_Upper"].iloc[-1]
