@@ -40,8 +40,8 @@ def format_price(price, symbol="BTCUSDT"):
     """格式化價格顯示"""
     if "BTC" in symbol:
         return f"${price:,.0f}"  # BTC 顯示整數，帶千分位
-    elif "ETH" in symbol or "SOL" in symbol:
-        return f"${price:.0f}"   # ETH, SOL 顯示整數
+    elif "ETH" in symbol or "SOL" in symbol or "BNB" in symbol:
+        return f"${price:.0f}"   # ETH, SOL, BNB 顯示整數
     elif "DOGE" in symbol:
         return f"${price:.4f}"   # DOGE 顯示4位小數
     elif "XRP" in symbol or "ADA" in symbol:
@@ -55,7 +55,8 @@ def get_tradingview_icon_url(symbol):
     """獲取 TradingView 圖標 URL"""
     icon_map = {
         "BTCUSDT": "https://s3-symbol-logo.tradingview.com/crypto/XTVCBTC--big.svg",
-        "ETHUSDT": "https://s3-symbol-logo.tradingview.com/crypto/XTVCETH--big.svg", 
+        "ETHUSDT": "https://s3-symbol-logo.tradingview.com/crypto/XTVCETH--big.svg",
+        "BNBUSDT": "https://s3-symbol-logo.tradingview.com/crypto/XTVCBNB--big.svg",
         "SOLUSDT": "https://s3-symbol-logo.tradingview.com/crypto/XTVCSOL--big.svg",
         "DOGEUSDT": "https://s3-symbol-logo.tradingview.com/crypto/XTVCDOGE--big.svg",
         "XRPUSDT": "https://s3-symbol-logo.tradingview.com/crypto/XTVCXRP--big.svg",
@@ -74,6 +75,7 @@ def get_symbol_with_icon(symbol, name):
         emoji_map = {
             "BTCUSDT": "₿",      # Bitcoin 官方 Unicode 符號
             "ETHUSDT": "Ξ",      # Ethereum 官方 Unicode 符號
+            "BNBUSDT": "🔶",     # BNB 專業符號
             "SOLUSDT": "◎",      # Solana 專業符號 (圓形設計)
             "DOGEUSDT": "Ð",     # Dogecoin 官方 Unicode 符號
             "XRPUSDT": "✕",      # XRP 專業符號 (X 設計)
@@ -87,6 +89,7 @@ def get_symbol_emoji(symbol):
     emoji_map = {
         "BTCUSDT": "₿",      # Bitcoin 官方 Unicode 符號
         "ETHUSDT": "Ξ",      # Ethereum 官方 Unicode 符號
+        "BNBUSDT": "🔶",     # BNB 專業符號
         "SOLUSDT": "◎",      # Solana 專業符號 (圓形設計)
         "DOGEUSDT": "Ð",     # Dogecoin 官方 Unicode 符號
         "XRPUSDT": "✕",      # XRP 專業符號 (X 設計)
@@ -99,6 +102,7 @@ def get_symbol_name(symbol):
     name_map = {
         "BTCUSDT": "BTC",
         "ETHUSDT": "ETH",
+        "BNBUSDT": "BNB",
         "SOLUSDT": "SOL",
         "DOGEUSDT": "DOGE",
         "XRPUSDT": "XRP",
@@ -324,12 +328,13 @@ def generate_readme_content(all_analysis_data):
 
 ## 📊 技術指標總結
 
-| 指標 | BTC | ETH | SOL | DOGE | XRP | ADA |
-|------|-----|-----|-----|------|-----|-----|"""
+| 指標 | BTC | ETH | BNB | SOL | DOGE | XRP | ADA |
+|------|-----|-----|-----|-----|------|-----|-----|"""
 
     # 創建技術指標對比表
     btc_data = all_analysis_data.get('BTCUSDT', {})
     eth_data = all_analysis_data.get('ETHUSDT', {})
+    bnb_data = all_analysis_data.get('BNBUSDT', {})
     sol_data = all_analysis_data.get('SOLUSDT', {})
     doge_data = all_analysis_data.get('DOGEUSDT', {})
     xrp_data = all_analysis_data.get('XRPUSDT', {})
@@ -386,16 +391,17 @@ def generate_readme_content(all_analysis_data):
         else:
             return "⚪"
 
-    indicators_list = ['均線系統', 'VWMA', 'MACD', 'RSI', 'KDJ', 'BOLL', 'KC', 'DMI'] 
+    indicators_list = ['均線系統', 'VWMA', 'MACD', 'RSI', 'KDJ', 'BOLL', 'KC', 'DMI']
     for indicator in indicators_list:
         btc_status = get_indicator_status(btc_data, indicator)
         eth_status = get_indicator_status(eth_data, indicator)
+        bnb_status = get_indicator_status(bnb_data, indicator)
         sol_status = get_indicator_status(sol_data, indicator)
         doge_status = get_indicator_status(doge_data, indicator)
         xrp_status = get_indicator_status(xrp_data, indicator)
         ada_status = get_indicator_status(ada_data, indicator)
         readme_content += f"""
-| **{indicator}** | {btc_status} | {eth_status} | {sol_status} | {doge_status} | {xrp_status} | {ada_status} |"""
+| **{indicator}** | {btc_status} | {eth_status} | {bnb_status} | {sol_status} | {doge_status} | {xrp_status} | {ada_status} |"""
 
     readme_content += f"""
 
@@ -407,7 +413,7 @@ def generate_readme_content(all_analysis_data):
 - **🔄 更新頻率**: 每30分鐘自動更新
 - **⏰ 最後更新**: {taipei_time.strftime('%Y-%m-%d %H:%M:%S')} 台北時間
 - **🌍 UTC 時間**: {utc_now.strftime('%Y-%m-%d %H:%M:%S')} UTC
-- **📈 分析幣種**: BTC, ETH, SOL, DOGE, XRP, ADA
+- **📈 分析幣種**: BTC, ETH, BNB, SOL, DOGE, XRP, ADA
 - **🎯 技術指標**: MA, VWMA, MACD, BOLL, KC, RSI, KDJ, DMI
 
 ---
@@ -424,7 +430,7 @@ def generate_readme_content(all_analysis_data):
 
 **🚀 由 GitHub Actions 自動生成 | ⭐ 如果覺得有用請給個 Star**
 
-*📊 實時監控 6 大主流幣種 | 🤖 專業技術分析 | 💡 智能交易建議*
+*📊 實時監控 7 大主流幣種 | 🤖 專業技術分析 | 💡 智能交易建議*
 
 </div>
 """
