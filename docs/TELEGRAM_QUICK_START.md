@@ -103,8 +103,8 @@ python run_telegram_bot.py
 |------|------|------|
 | Bitcoin | BTCUSDT | ₿ |
 | Ethereum | ETHUSDT | Ξ |
+| Binance Coin | BNBUSDT | 🔶 |
 | Solana | SOLUSDT | ◎ |
-| Dogecoin | DOGEUSDT | 🐕 |
 | Ripple | XRPUSDT | ◆ |
 | Cardano | ADAUSDT | ₳ |
 

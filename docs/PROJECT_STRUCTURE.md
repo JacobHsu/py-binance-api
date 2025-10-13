@@ -14,8 +14,6 @@ Binance_py/
 │   ├── ETHUSDT_ticker_24hr.json  # Ethereum 24小時行情
 │   ├── SOLUSDT_klines_1h.csv     # Solana K線數據
 │   ├── SOLUSDT_ticker_24hr.json  # Solana 24小時行情
-│   ├── DOGEUSDT_klines_1h.csv    # Dogecoin K線數據
-│   ├── DOGEUSDT_ticker_24hr.json # Dogecoin 24小時行情
 │   ├── XRPUSDT_klines_1h.csv     # Ripple K線數據
 │   ├── XRPUSDT_ticker_24hr.json  # Ripple 24小時行情
 │   ├── ADAUSDT_klines_1h.csv     # Cardano K線數據
