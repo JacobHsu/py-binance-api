@@ -75,7 +75,6 @@ class TelegramBot:
             "SOLUSDT": {"name": "SOL", "icon": "◎", "emoji": "🟣"},
             "DOGEUSDT": {"name": "DOGE", "icon": "🐕", "emoji": "🟡"},
             "XRPUSDT": {"name": "XRP", "icon": "◆", "emoji": "🔷"},
-            "ADAUSDT": {"name": "ADA", "icon": "₳", "emoji": "🔵"}
         }
         
         symbol_info = symbol_names.get(symbol, {"name": symbol, "icon": "💰", "emoji": "⚪"})
@@ -145,7 +144,6 @@ class TelegramBot:
             "SOLUSDT": {"name": "SOL", "icon": "◎", "emoji": "🟣"},
             "DOGEUSDT": {"name": "DOGE", "icon": "🐕", "emoji": "🟡"},
             "XRPUSDT": {"name": "XRP", "icon": "◆", "emoji": "🔷"},
-            "ADAUSDT": {"name": "ADA", "icon": "₳", "emoji": "🔵"}
         }
         
         symbol_info = symbol_names.get(symbol, {"name": symbol, "icon": "💰", "emoji": "⚪"})
@@ -255,11 +253,10 @@ class TelegramBot:
             
             symbol_names = {
                 "BTCUSDT": "BTC",
-                "ETHUSDT": "ETH", 
+                "ETHUSDT": "ETH",
                 "SOLUSDT": "SOL",
                 "DOGEUSDT": "DOGE",
-                "XRPUSDT": "XRP",
-                "ADAUSDT": "ADA"
+                "XRPUSDT": "XRP"
             }
             
             name = symbol_names.get(symbol, symbol)

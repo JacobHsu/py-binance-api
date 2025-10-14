@@ -106,7 +106,6 @@ python run_telegram_bot.py
 | Binance Coin | BNBUSDT | 🔶 |
 | Solana | SOLUSDT | ◎ |
 | Ripple | XRPUSDT | ◆ |
-| Cardano | ADAUSDT | ₳ |
 
 ---
 

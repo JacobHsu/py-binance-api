@@ -58,7 +58,7 @@ jobs:
         import sys
         
         def get_symbol_name(symbol):
-            name_map = {'BTCUSDT': 'BTC', 'ETHUSDT': 'ETH', 'BNBUSDT': 'BNB', 'SOLUSDT': 'SOL', 'XRPUSDT': 'XRP', 'ADAUSDT': 'ADA'}
+            name_map = {'BTCUSDT': 'BTC', 'ETHUSDT': 'ETH', 'BNBUSDT': 'BNB', 'SOLUSDT': 'SOL', 'XRPUSDT': 'XRP'}
             return name_map.get(symbol, symbol)
         
         try:

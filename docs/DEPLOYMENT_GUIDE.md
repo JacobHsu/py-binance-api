@@ -79,7 +79,7 @@ on:
 
 ```python
 # 將 BTCUSDT 改為其他交易對
-symbol = "ETHUSDT"  # 或 "ADAUSDT", "SOLUSDT" 等
+symbol = "ETHUSDT"  # 或 "SOLUSDT", "XRPUSDT" 等
 ```
 
 ### 自定義 README 樣式

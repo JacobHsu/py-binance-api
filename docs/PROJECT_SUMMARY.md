@@ -5,7 +5,7 @@
 這是一個基於 **manus** 原始設計的 Binance 加密貨幣自動化技術分析系統，現已升級為支援 **多幣種分析**、**GitHub Actions 每30分鐘自動執行**、**Telegram 訊號推送** 並生成美觀的 **README.md 投資報告**。
 
 ### 🎯 最新重大更新
-- ✅ **多幣種支持**: BTC, ETH, BNB, SOL, XRP, ADA
+- ✅ **多幣種支持**: BTC, ETH, BNB, SOL, XRP
 - ✅ **多時間框架分析**: 15分鐘 + 1小時雙重確認
 - ✅ **Telegram 機器人**: 自動訊號推送和市場總覽
 - ✅ **綜合建議系統**: 智能操作建議（謹慎做多/做空/觀望等待）
@@ -16,7 +16,7 @@
 ### ✅ 已實現功能
 
 1. **📊 多幣種數據獲取** (`get_binance_data.py`)
-   - 支援 6 大主流幣種: BTC, ETH, BNB, SOL, XRP, ADA
+   - 支援 6 大主流幣種: BTC, ETH, BNB, SOL, XRP
    - 自動從 Binance API 獲取實時市場數據
    - 多時間框架數據: 15分鐘 + 1小時 K線數據
    - 24小時行情數據和價格變化
@@ -279,7 +279,7 @@ python run_telegram_bot.py
 ## 🔮 未來擴展計劃
 
 ### 🎯 短期目標 (已實現)
-- ✅ **多幣種支持**: BTC, ETH, BNB, SOL, XRP, ADA
+- ✅ **多幣種支持**: BTC, ETH, BNB, SOL, XRP
 - ✅ **Telegram 機器人**: 自動訊號推送
 - ✅ **多時間框架**: 15分鐘 + 1小時分析
 - ✅ **綜合建議系統**: 智能操作建議
