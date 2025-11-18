@@ -1,0 +1,192 @@
+name: Virtual Currency 30m Analysis & README Generator
+
+on:
+  schedule:
+    # 每30分鐘執行，但跳過 UTC 18:00-23:00 (台北時間 2:00-7:00)
+    - cron: '0,30 0-17 * * *'
+  workflow_dispatch: # 手動觸發
+
+permissions:
+  contents: write
+  models: read
+
+jobs:
+  analyze-and-update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check execution time
+      run: |
+        CURRENT_HOUR=$(date -u +%H)
+        if [ $CURRENT_HOUR -ge 18 ] || [ $CURRENT_HOUR -lt 0 ]; then
+          echo "跳過執行：目前時間在維護時段 (台北時間 2:00-7:00)"
+          exit 0
+        fi
+        echo "繼續執行：目前時間 UTC $CURRENT_HOUR:00"
+    
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install pandas requests pytz python-dotenv
+
+    - name: Run Multi-Crypto Data Collection
+      run: |
+        mkdir -p data
+        python get_binance_data.py
+
+    - name: Run Multi-Crypto Technical Analysis
+      run: python analyze_binance_data.py
+
+    - name: Generate Virtual Currency 30m README Report
+      run: python generate_readme_report.py
+
+    - name: Extract Buy Signals for Dynamic Commit
+      id: extract-signals
+      run: |
+        # 提取買入建議的幣種
+        python3 -c "
+        import json
+        import sys
+        
+        def get_symbol_name(symbol):
+            name_map = {'BTCUSDT': 'BTC', 'ETHUSDT': 'ETH', 'BNBUSDT': 'BNB', 'SOLUSDT': 'SOL', 'XRPUSDT': 'XRP'}
+            return name_map.get(symbol, symbol)
+        
+        try:
+            with open('data/multi_investment_report.json', 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            buy_signals = []
+            strong_buy_signals = []
+            
+            for symbol, analysis in data.items():
+                coin_name = get_symbol_name(symbol)
+                signal_15m_buy = False
+                signal_1h_buy = False
+                
+                # 檢查15分鐘信號
+                if '15m' in analysis and 'trend_type' in analysis['15m']:
+                    if analysis['15m']['trend_type'] == '多頭' and not analysis['15m'].get('ma_analysis', {}).get('is_tangled', True):
+                        signal_15m_buy = True
+                
+                # 檢查1小時信號
+                if '1h' in analysis and 'trend_type' in analysis['1h']:
+                    if analysis['1h']['trend_type'] == '多頭' and not analysis['1h'].get('ma_analysis', {}).get('is_tangled', True):
+                        signal_1h_buy = True
+                else:
+                    trend_type = analysis.get('trend_type', '')
+                    if trend_type == '多頭' and not analysis.get('ma_analysis', {}).get('is_tangled', True):
+                        signal_1h_buy = True
+                
+                if signal_15m_buy and signal_1h_buy:
+                    strong_buy_signals.append(coin_name)
+                elif signal_15m_buy or signal_1h_buy:
+                    buy_signals.append(coin_name)
+            
+            buy_list = ','.join(buy_signals) if buy_signals else ''
+            strong_buy_list = ','.join(strong_buy_signals) if strong_buy_signals else ''
+            
+            print(f'buy_signals={buy_list}')
+            print(f'strong_buy_signals={strong_buy_list}')
+            
+        except Exception as e:
+            print(f'buy_signals=')
+            print(f'strong_buy_signals=')
+        " >> $GITHUB_OUTPUT
+
+    - name: Generate Dynamic Commit Message with GitHub Models
+      id: generate-message
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const buySignals = '${{ steps.extract-signals.outputs.buy_signals }}';
+          const strongBuySignals = '${{ steps.extract-signals.outputs.strong_buy_signals }}';
+          
+          let prompt = '';
+          if (strongBuySignals) {
+            prompt = `Generate a concise crypto commit message about strong buy signals for: ${strongBuySignals}. Format: "🚀 Update report - Strong Buy: BTC, ETH". Keep under 40 chars before timestamp.`;
+          } else if (buySignals) {
+            prompt = `Generate a concise crypto commit message about buy signals for: ${buySignals}. Format: "🚀 Update report - Buy: SOL, XRP". Keep under 40 chars before timestamp.`;
+          } else {
+            prompt = 'Generate a concise crypto commit message for market analysis with no buy signals. Format: "🚀 Update report - Market Watch". Keep under 40 chars.';
+          }
+          
+          try {
+            const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${{ secrets.MODELS_TOKEN }}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [
+                  {
+                    role: 'system',
+                    content: 'Generate short crypto trading commit messages in Traditional Chinese. Be concise and use emojis.'
+                  },
+                  {
+                    role: 'user', 
+                    content: prompt
+                  }
+                ],
+                max_tokens: 50,
+                temperature: 0.3
+              })
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              const message = data.choices[0].message.content.trim();
+              core.setOutput('commit_message', message);
+              console.log('Dynamic message:', message);
+            } else {
+              throw new Error(`API Error: ${response.status}`);
+            }
+          } catch (error) {
+            console.log('API failed, using fallback');
+            let fallbackMessage = '';
+            if (strongBuySignals) {
+              fallbackMessage = `🚀 Update report - Strong Buy: ${strongBuySignals}`;
+            } else if (buySignals) {
+              fallbackMessage = `🚀 Update report - Buy: ${buySignals}`;
+            } else {
+              fallbackMessage = '🚀 Update report - Market Watch';
+            }
+            core.setOutput('commit_message', fallbackMessage);
+          }
+
+    - name: Send Telegram signals (if buy signals exist)
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: |
+        python send_telegram_conditionally.py
+
+    - name: Commit and Push Updated README
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "Virtual Currency Analysis Bot"
+        git add README.md
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          DYNAMIC_MESSAGE="${{ steps.generate-message.outputs.commit_message }}"
+          TIMESTAMP="$(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          
+          if [ -n "$DYNAMIC_MESSAGE" ]; then
+            git commit -m "$DYNAMIC_MESSAGE - $TIMESTAMP"
+          else
+            git commit -m "🚀 Update virtual currency 30m report - $TIMESTAMP"
+          fi
+          git push
+        fi
