@@ -97,6 +97,44 @@ def get_symbol_name(symbol):
     return name_map.get(symbol, symbol)
 
 
+def format_fibonacci_pivots(analysis, current_price):
+    """格式化 Fibonacci 樞紐點顯示"""
+    fib = analysis.get('fibonacci_pivots', {})
+    if not fib:
+        return "N/A"
+
+    def pct(level):
+        return ((level - current_price) / current_price) * 100
+
+    r2 = fib.get('R2', 0)
+    r1 = fib.get('R1', 0)
+    pp = fib.get('PP', 0)
+    s1 = fib.get('S1', 0)
+    s2 = fib.get('S2', 0)
+
+    # 分析價格位置
+    if current_price > r1:
+        position_desc = "強勢突破R1"
+        if current_price > r2:
+            analysis_text = f"價格突破R2（{r2:,.2f}），極度強勢，R2成為支撐，注意追高風險。"
+        else:
+            analysis_text = f"價格站上R1（{r1:,.2f}），多頭強勢，R1（{r1:,.2f}）轉為支撐，上看R2（{r2:,.2f}，{pct(r2):+.1f}%）。"
+    elif current_price > pp:
+        position_desc = "偏多格局"
+        analysis_text = f"價格位於樞紐點（{pp:,.2f}）上方，短線偏多，上方壓力R1（{r1:,.2f}，{pct(r1):+.1f}%），下方支撐PP（{pp:,.2f}）。"
+    elif current_price > s1:
+        position_desc = "偏空格局"
+        analysis_text = f"價格位於樞紐點（{pp:,.2f}）下方，短線偏空，反彈壓力PP（{pp:,.2f}，{pct(pp):+.1f}%），下方支撐S1（{s1:,.2f}，{pct(s1):+.1f}%）。"
+    elif current_price > s2:
+        position_desc = "弱勢跌破S1"
+        analysis_text = f"價格跌破S1（{s1:,.2f}），空頭主導，反彈壓力S1（{s1:,.2f}，{pct(s1):+.1f}%），下方支撐S2（{s2:,.2f}，{pct(s2):+.1f}%）。"
+    else:
+        position_desc = "極度弱勢"
+        analysis_text = f"價格跌破S2（{s2:,.2f}），極度弱勢，S2成為壓力，注意抄底風險。"
+
+    return f"{position_desc}。{analysis_text}"
+
+
 def generate_readme_content(all_analysis_data):
     """生成多幣種 README.md 內容"""
 
@@ -241,6 +279,9 @@ def generate_readme_content(all_analysis_data):
 **↔️ KC指標**: {indicators.get('KC', 'N/A')}
 
 **📈 DMI指標**: {indicators.get('DMI', 'N/A')}
+
+**📐 Fibonacci 樞紐點**:
+{format_fibonacci_pivots(analysis, price)}
 
 **💡 交易建議**: {analysis['analysis_result']['方向']}
 

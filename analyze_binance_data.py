@@ -1,6 +1,31 @@
 import pandas as pd
 import json
 
+def calculate_fibonacci_pivots(high, low, close):
+    """
+    計算 Fibonacci Pivot Points
+
+    Args:
+        high: 週期最高價
+        low: 週期最低價
+        close: 收盤價
+
+    Returns:
+        dict: 包含 PP, R1, R2, R3, S1, S2, S3
+    """
+    pp = (high + low + close) / 3
+    range_hl = high - low
+
+    return {
+        "PP": pp,
+        "R1": pp + 0.382 * range_hl,
+        "R2": pp + 0.618 * range_hl,
+        "R3": pp + 1.000 * range_hl,
+        "S1": pp - 0.382 * range_hl,
+        "S2": pp - 0.618 * range_hl,
+        "S3": pp - 1.000 * range_hl,
+    }
+
 def calculate_technical_indicators(df):
     # Moving Averages (MA)
     df["MA5"] = df["close"].rolling(window=5).mean()
@@ -117,10 +142,16 @@ def analyze_indicators(ticker_data, klines_df):
     else:
         analysis_results["4h_change_percent"] = 0
 
-    # Support and Resistance (simplified, can be improved with more advanced methods)
-    # Using recent low/high as a simple proxy
-    analysis_results["major_support"] = klines_df["low"].min()
-    analysis_results["major_resistance"] = klines_df["high"].max()
+    # Support and Resistance using Fibonacci Pivot Points
+    # 使用最近 24 根 K 線的高低點計算 Fibonacci Pivots
+    recent_high = klines_df["high"].tail(24).max()
+    recent_low = klines_df["low"].tail(24).min()
+    recent_close = klines_df["close"].iloc[-1]
+
+    fib_pivots = calculate_fibonacci_pivots(recent_high, recent_low, recent_close)
+    analysis_results["fibonacci_pivots"] = fib_pivots
+    analysis_results["major_support"] = fib_pivots["S1"]
+    analysis_results["major_resistance"] = fib_pivots["R1"]
 
     # Enhanced Trend Analysis with Tangled Detection
     ma5_current = klines_df["MA5"].iloc[-1]
@@ -470,27 +501,31 @@ def analyze_indicators(ticker_data, klines_df):
         direction = "區間操作。震盪整理格局，可在{major_support:.2f}附近做多，{major_resistance:.2f}附近做空，注意控制倉位。"
         entry_timing = "激進者：現價{current_price:.2f}可輕倉操作。穩健者：等待接近區間邊界{major_support:.2f}或{major_resistance:.2f}後進場。"
     
+    # 使用 Fibonacci Pivot Points 計算止損和目標價位
+    fib = analysis_results["fibonacci_pivots"]
+    s1 = fib["S1"]
+    s2 = fib["S2"]
+    r1 = fib["R1"]
+    r2 = fib["R2"]
+    pp = fib["PP"]
+
+    # 計算百分比變化
+    s1_pct = ((s1 - current_price) / current_price) * 100
+    s2_pct = ((s2 - current_price) / current_price) * 100
+    r1_pct = ((r1 - current_price) / current_price) * 100
+    r2_pct = ((r2 - current_price) / current_price) * 100
+
     analysis_results["analysis_result"] = {
         "方向": direction,
         "入場時機": entry_timing,
-        "止損設定": "{stop_loss:.2f}（-1.1%，低於支撐S1），或浮動止損3%以內。",
-        "目標價位": "第一目標{target1:.2f}（24H高點，+1.4%），第二目標{target2:.2f}（前波段高點延伸，+2.3%）。"
+        "止損設定": f"S1: {s1:.2f}（{s1_pct:+.1f}%），S2: {s2:.2f}（{s2_pct:+.1f}%），或浮動止損3%以內。",
+        "目標價位": f"R1: {r1:.2f}（{r1_pct:+.1f}%），R2: {r2:.2f}（{r2_pct:+.1f}%）。"
     }
     # Fill in placeholders for analysis_result
     analysis_results["analysis_result"]["方向"] = analysis_results["analysis_result"]["方向"].format(
         major_support=analysis_results["major_support"], major_resistance=analysis_results["major_resistance"])
     analysis_results["analysis_result"]["入場時機"] = analysis_results["analysis_result"]["入場時機"].format(
         current_price=current_price, major_resistance=analysis_results["major_resistance"], ma20=ma20, major_support=analysis_results["major_support"])
-    
-    # Simplified stop loss and target prices for demonstration
-    stop_loss = current_price * 0.989 # Example: 1.1% below current price
-    target1 = current_price * 1.014 # Example: 1.4% above current price
-    target2 = current_price * 1.023 # Example: 2.3% above current price
-
-    analysis_results["analysis_result"]["止損設定"] = analysis_results["analysis_result"]["止損設定"].format(
-        stop_loss=stop_loss)
-    analysis_results["analysis_result"]["目標價位"] = analysis_results["analysis_result"]["目標價位"].format(
-        target1=target1, target2=target2)
 
     return analysis_results
 
