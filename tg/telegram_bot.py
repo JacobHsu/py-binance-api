@@ -304,7 +304,7 @@ class TelegramBot:
                     trend_1h_display = "📊震盪"
 
             # 格式化顯示 - 與 README 表格格式對齊
-            message += f"<b>{name}</b> | {price_str} | 1H:{change_1h:+.2f}% 4H:{change_4h:+.2f}%\n"
+            message += f"<b>{name}</b> | <b>{price_str}</b> | 1H:{change_1h:+.2f}% | 4H:{change_4h:+.2f}%\n"
             message += f"15M:{trend_15m_display}({signal_15m}) | 1H:{trend_1h_display}({signal_1h})\n"
             message += f"綜合: {signal}\n\n"
         

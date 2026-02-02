@@ -80,7 +80,7 @@ def fetch_multiple_symbols(symbols, intervals=["1h", "15m"]):
 
 if __name__ == "__main__":
     # 支援的交易對
-    symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT"]
+    symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT"]
     intervals = ["1h", "15m"]  # 支援多時間框架
 
     try:

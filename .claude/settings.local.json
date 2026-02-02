@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(dir:*)",
+      "Bash(chcp 6500)",
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(cmd /c \"chcp 65001 >nul & set PYTHONIOENCODING=utf-8 & python get_binance_data.py\")",
+      "Bash(if not exist data mkdir data)"
     ],
     "deny": [],
     "ask": []
