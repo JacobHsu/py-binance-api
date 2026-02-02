@@ -236,7 +236,7 @@ class TelegramBot:
                 if ("多頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "多頭" in trend_1h):
                     signal = "🟡謹慎做多"
                     neutral_signals.append(symbol)  # 謹慎做多不發送買入信號
-                elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_1h and "空頭" in trend_1h):
+                elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "空頭" in trend_1h):
                     signal = "🟡謹慎做空"
                     neutral_signals.append(symbol)  # 謹慎做空不發送賣出信號
                 else:
@@ -261,40 +261,52 @@ class TelegramBot:
             
             name = symbol_names.get(symbol, symbol)
             
-            # 獲取趨勢顯示
+            # 獲取趨勢顯示和個別信號（與 README 邏輯一致）
             trend_15m_display = "🔄糾結"
             trend_1h_display = "🔄糾結"
-            
+            signal_15m = "⚪觀望"
+            signal_1h = "⚪觀望"
+
             if '15m' in data and 'trend_type' in data['15m']:
                 trend_type_15m = data['15m']['trend_type']
+                is_tangled_15m = data['15m'].get('ma_analysis', {}).get('is_tangled', True)
                 if trend_type_15m == "多頭":
                     trend_15m_display = "📈多頭"
+                    signal_15m = "🟢買入" if not is_tangled_15m else "⚪觀望"
                 elif trend_type_15m == "空頭":
                     trend_15m_display = "📉空頭"
+                    signal_15m = "🔴賣出" if not is_tangled_15m else "⚪觀望"
                 elif trend_type_15m == "震盪":
                     trend_15m_display = "📊震盪"
-            
+
             if '1h' in data and 'trend_type' in data['1h']:
                 trend_type_1h = data['1h']['trend_type']
+                is_tangled_1h = data['1h'].get('ma_analysis', {}).get('is_tangled', True)
                 if trend_type_1h == "多頭":
                     trend_1h_display = "📈多頭"
+                    signal_1h = "🟢買入" if not is_tangled_1h else "⚪觀望"
                 elif trend_type_1h == "空頭":
                     trend_1h_display = "📉空頭"
+                    signal_1h = "🔴賣出" if not is_tangled_1h else "⚪觀望"
                 elif trend_type_1h == "震盪":
                     trend_1h_display = "📊震盪"
             else:
                 # 向後兼容
                 trend_type = data.get('trend_type', '糾結')
+                is_tangled = data.get('ma_analysis', {}).get('is_tangled', True)
                 if trend_type == "多頭":
                     trend_1h_display = "📈多頭"
+                    signal_1h = "🟢買入" if not is_tangled else "⚪觀望"
                 elif trend_type == "空頭":
                     trend_1h_display = "📉空頭"
+                    signal_1h = "🔴賣出" if not is_tangled else "⚪觀望"
                 elif trend_type == "震盪":
                     trend_1h_display = "📊震盪"
-            
-            # 格式化顯示 - 類似 README 表格格式
+
+            # 格式化顯示 - 與 README 表格格式對齊
             message += f"<b>{name}</b> | {price_str} | 1H:{change_1h:+.2f}% 4H:{change_4h:+.2f}%\n"
-            message += f"15M:{trend_15m_display} | 1H:{trend_1h_display} | {signal}\n\n"
+            message += f"15M:{trend_15m_display}({signal_15m}) | 1H:{trend_1h_display}({signal_1h})\n"
+            message += f"綜合: {signal}\n\n"
         
         # 添加統計信息
         message += f"""
@@ -392,7 +404,7 @@ def check_and_send_signals(bot_token, chat_id, send_summary=True):
             # 時框分歧時不發送任何信號
             if ("多頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "多頭" in trend_1h):
                 combined_advice = "謹慎做多"
-            elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_1h and "空頭" in trend_1h):
+            elif ("空頭" in trend_15m and "糾結" in trend_1h) or ("糾結" in trend_15m and "空頭" in trend_1h):
                 combined_advice = "謹慎做空"
             else:
                 combined_advice = "觀望等待"

@@ -29,7 +29,7 @@ class TelegramConfig:
         self.SELL_SIGNAL_THRESHOLD = float(os.getenv("SELL_SIGNAL_THRESHOLD", "-1.0"))  # 賣出信號閾值 (%)
         
         # 支援的幣種
-        self.SUPPORTED_SYMBOLS = os.getenv("SUPPORTED_SYMBOLS", "BTCUSDT,ETHUSDT,BNBUSDT,SOLUSDT,XRPUSDT").split(",")
+        self.SUPPORTED_SYMBOLS = os.getenv("SUPPORTED_SYMBOLS", "BTCUSDT,ETHUSDT,SOLUSDT,XRPUSDT").split(",")
         
         # 訊息格式設定
         self.MESSAGE_LANGUAGE = os.getenv("MESSAGE_LANGUAGE", "zh-TW")  # zh-TW, en
