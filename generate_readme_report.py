@@ -146,7 +146,7 @@ def generate_readme_content(all_analysis_data):
     # 生成多幣種 README 內容
     readme_content = f"""# 🚀 虛擬幣1h投資分析報告
 
-> 📊 **實時技術分析** | 🤖 **自動化生成** | ⏰ **每小時更新**
+> 📊 **實時技術分析** | 🤖 **自動化生成** | ⏰ **每四小時更新**
 
 ---
 
@@ -431,7 +431,7 @@ def generate_readme_content(all_analysis_data):
 ## 🤖 系統信息
 
 - **📊 數據來源**: Binance API
-- **🔄 更新頻率**: 每小時自動更新
+- **🔄 更新頻率**: 每四小時自動更新
 - **⏰ 最後更新**: {taipei_time.strftime('%Y-%m-%d %H:%M:%S')} 台北時間
 - **🌍 UTC 時間**: {utc_now.strftime('%Y-%m-%d %H:%M:%S')} UTC
 - **📈 分析幣種**: BTC, ETH, SOL, XRP

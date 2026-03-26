@@ -221,7 +221,7 @@ SUPPORTED_SYMBOLS: BTCUSDT,ETHUSDT,SOLUSDT
 
 設定完成後，您的 GitHub Actions 將會：
 
-- 🕐 **每小時自動執行** 市場分析
+- 🕐 **每四小時自動執行** 市場分析
 - 🧠 **智能判斷** 是否有買入訊號
 - 📱 **自動發送** Telegram 訊息 (僅在有買入訊號時)
 - 📊 **更新 README** 投資分析報告

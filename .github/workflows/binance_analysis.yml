@@ -2,8 +2,8 @@ name: Virtual Currency 1h Analysis & README Generator
 
 on:
   schedule:
-    # 每小時執行，但跳過 UTC 18:00-23:00 (台北時間 2:00-7:00)
-    - cron: '0 0-17 * * *'
+    # 每四小時執行，但跳過 UTC 18:00-23:00 (台北時間 2:00-7:00)
+    - cron: '0 0-17/4 * * *'
   workflow_dispatch: # 手動觸發
 
 permissions:

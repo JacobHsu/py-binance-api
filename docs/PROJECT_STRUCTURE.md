@@ -102,7 +102,7 @@ Binance_py/
 - **Heroku**: `Procfile` + `scheduled_analysis.py`
 
 ### 🤖 GitHub Actions (`.github/workflows/`)
-- **`binance_analysis.yml`**: 每小時自動執行工作流程
+- **`binance_analysis.yml`**: 每四小時自動執行工作流程
 - 自動獲取數據 → 分析 → 生成報告 → 推送更新
 
 ## 🔄 工作流程
@@ -137,7 +137,7 @@ python run_telegram_bot.py
 ```
 
 ### 5. 自動化執行
-- GitHub Actions 每小時自動執行上述流程
+- GitHub Actions 每四小時自動執行上述流程
 - 自動提交並推送更新的 README.md
 - 可選: 同時發送 Telegram 訊號
 
@@ -152,7 +152,7 @@ python run_telegram_bot.py
 1. 參考 `docs/DEPLOYMENT_GUIDE.md`
 2. 推送代碼到 GitHub 倉庫
 3. 啟用 GitHub Actions
-4. 每小時自動更新投資分析報告
+4. 每四小時自動更新投資分析報告
 
 ### 雲端部署
 1. 選擇適合的雲端平台

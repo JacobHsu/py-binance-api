@@ -144,7 +144,7 @@ def main():
     print("\n🎉 多幣種分析系統測試成功完成！")
     print("=" * 60)
     print("📋 系統特色:")
-    print("  ✅ 支援 4 大主流幣種 (BTC, ETH, SOL, DOGE)")
+    print("  ✅ 支援 4 大主流幣種 (BTC, ETH, SOL, XRP)")
     print("  ✅ 一頁式好讀報告格式")
     print("  ✅ 智能最佳機會推薦")
     print("  ✅ 技術指標對比表格")

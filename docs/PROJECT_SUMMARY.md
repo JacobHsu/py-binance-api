@@ -2,7 +2,7 @@
 
 ## 📋 專案概述
 
-這是一個基於 **manus** 原始設計的 Binance 加密貨幣自動化技術分析系統，現已升級為支援 **多幣種分析**、**GitHub Actions 每小時自動執行**、**Telegram 訊號推送** 並生成美觀的 **README.md 投資報告**。
+這是一個基於 **manus** 原始設計的 Binance 加密貨幣自動化技術分析系統，現已升級為支援 **多幣種分析**、**GitHub Actions 每四小時自動執行**、**Telegram 訊號推送** 並生成美觀的 **README.md 投資報告**。
 
 ### 🎯 最新重大更新
 - ✅ **多幣種支持**: BTC, ETH, SOL, XRP
@@ -16,7 +16,7 @@
 ### ✅ 已實現功能
 
 1. **📊 多幣種數據獲取** (`get_binance_data.py`)
-   - 支援 6 大主流幣種: BTC, ETH, SOL, XRP
+   - 支援 4 大主流幣種: BTC, ETH, SOL, XRP
    - 自動從 Binance API 獲取實時市場數據
    - 多時間框架數據: 15分鐘 + 1小時 K線數據
    - 24小時行情數據和價格變化
@@ -49,7 +49,7 @@
    - **錯誤處理**: 完善的異常處理機制
 
 5. **🔄 自動化執行** (`.github/workflows/binance_analysis.yml`)
-   - GitHub Actions 每小時自動執行
+   - GitHub Actions 每四小時自動執行
    - 自動獲取數據 → 分析 → 生成報告 → Telegram 推送 → 推送更新
    - 支援手動觸發執行
    - 完整的錯誤處理和日誌記錄
@@ -172,7 +172,7 @@ graph TD
 ### 方式一：GitHub Actions (推薦)
 1. 將代碼推送到 GitHub 倉庫
 2. 啟用 GitHub Actions
-3. 每小時自動執行並更新 README.md
+3. 每四小時自動執行並更新 README.md
 
 ### 方式二：本地執行
 ```bash
@@ -249,7 +249,7 @@ git commit -m "🚀 Deploy crypto analysis system"
 git push origin main
 
 # 3. 啟用 GitHub Actions
-# 每小時自動執行並推送 Telegram 訊號
+# 每四小時自動執行並推送 Telegram 訊號
 ```
 
 ### 方式二：本地執行
@@ -336,7 +336,7 @@ python run_telegram_bot.py
 
 ### 🏆 核心成就
 1. **🗂️ 專案結構專業化** - 清晰的目錄分類和文件管理
-2. **📊 多幣種技術分析** - 支援 6 大主流幣種同時分析
+2. **📊 多幣種技術分析** - 支援 4 大主流幣種同時分析
 3. **🤖 智能訊號系統** - Telegram 自動推送和綜合建議
 4. **📝 報告品質提升** - 完整內容顯示和專業格式
 5. **🔧 維護性增強** - 模組化設計，易於擴展和維護
@@ -354,7 +354,7 @@ python run_telegram_bot.py
 
 #### 整理後 ✅
 - 清晰的目錄分類
-- 多幣種同時分析 (6個主流幣種)
+- 多幣種同時分析 (4個主流幣種)
 - 數據文件統一管理
 - 完整的技術分析內容
 - 多時間框架綜合判斷
